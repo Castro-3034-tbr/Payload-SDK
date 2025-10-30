@@ -50,16 +50,21 @@ static T_DjiTaskHandle s_widgetTestThread;
 static bool s_isWidgetFileDirPathConfigured = false;
 static char s_widgetFileDirPath[DJI_FILE_PATH_SIZE_MAX] = {0};
 
+// static const T_DjiWidgetHandlerListItem s_widgetHandlerList[] = {
+//     {0, DJI_WIDGET_TYPE_BUTTON,        DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
+//     {1, DJI_WIDGET_TYPE_LIST,          DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
+//     {2, DJI_WIDGET_TYPE_SWITCH,        DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
+//     {3, DJI_WIDGET_TYPE_SCALE,         DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
+//     {4, DJI_WIDGET_TYPE_BUTTON,        DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
+//     {5, DJI_WIDGET_TYPE_SCALE,         DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
+//     {6, DJI_WIDGET_TYPE_INT_INPUT_BOX, DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
+//     {7, DJI_WIDGET_TYPE_SWITCH,        DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
+//     {8, DJI_WIDGET_TYPE_LIST,          DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
+// };
+
 static const T_DjiWidgetHandlerListItem s_widgetHandlerList[] = {
-    {0, DJI_WIDGET_TYPE_BUTTON,        DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
-    {1, DJI_WIDGET_TYPE_LIST,          DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
-    {2, DJI_WIDGET_TYPE_SWITCH,        DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
-    {3, DJI_WIDGET_TYPE_SCALE,         DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
-    {4, DJI_WIDGET_TYPE_BUTTON,        DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
-    {5, DJI_WIDGET_TYPE_SCALE,         DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
-    {6, DJI_WIDGET_TYPE_INT_INPUT_BOX, DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
-    {7, DJI_WIDGET_TYPE_SWITCH,        DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
-    {8, DJI_WIDGET_TYPE_LIST,          DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
+    {0, DJI_WIDGET_TYPE_LIST, DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
+    {1, DJI_WIDGET_TYPE_SWITCH, DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
 };
 
 static const char *s_widgetTypeNameArray[] = {
@@ -235,8 +240,43 @@ static T_DjiReturnCode DjiTestWidget_SetWidgetValue(E_DjiWidgetType widgetType, 
                   s_widgetTypeNameArray[widgetType], index, value);
     s_widgetValueList[index] = value;
 
+
+    //Añadimos funcionalidad a cada uno de los widgets por el indice que tienen
+    switch (index) {
+        case 0: //List
+            //Realizar acción según el valor seleccionado en el List
+            switch (value) {
+                case 0:
+                    USER_LOG_INFO("Seleccionamos Proyecto LIDIA");
+                    break;
+                case 1:
+                    USER_LOG_INFO("Seleccionamos Proyecto 2");
+                    break;
+                case 2:
+                    USER_LOG_INFO("Seleccionamos Proyecto 3");
+                    break;
+                case 3:
+                    USER_LOG_INFO("Seleccionamos Proyecto 4");
+                    break;
+                default:
+                    USER_LOG_INFO("List widget selected unknown option");
+                    break;
+            }
+            break;
+        case 1: //Switch
+            if (value == 1) {
+                USER_LOG_INFO("Iniciamos el Proyecto");
+            } else {
+                USER_LOG_INFO("Detenemos el Proyecto");
+            }
+            break;
+        default:
+            USER_LOG_INFO("Widget index not configured for action");
+            break;
+    }
     return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
+
 
 static T_DjiReturnCode DjiTestWidget_GetWidgetValue(E_DjiWidgetType widgetType, uint32_t index, int32_t *value,
                                                     void *userData)
