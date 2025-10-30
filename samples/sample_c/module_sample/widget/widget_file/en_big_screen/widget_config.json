@@ -587,19 +587,19 @@
       {
         "widget_index": 8,
         "widget_type": "list",
-        "widget_name": "List 8",
+        "widget_name": "Proyectos",
         "list_item": [
           {
-            "item_name": "Item 1"
+            "item_name": "Proyecto LIDIA"
           },
           {
-            "item_name": "Item 2"
+            "item_name": "Proyecto 2"
           },
           {
-            "item_name": "Item 3"
+            "item_name": "Proyecto 3"
           },
           {
-            "item_name": "Item 4"
+            "item_name": "Proyecto 4"
           }
         ],
         "customize_rc_buttons_config": {
