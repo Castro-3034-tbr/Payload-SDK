@@ -50,18 +50,6 @@ static T_DjiTaskHandle s_widgetTestThread;
 static bool s_isWidgetFileDirPathConfigured = false;
 static char s_widgetFileDirPath[DJI_FILE_PATH_SIZE_MAX] = {0};
 
-// static const T_DjiWidgetHandlerListItem s_widgetHandlerList[] = {
-//     {0, DJI_WIDGET_TYPE_BUTTON,        DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
-//     {1, DJI_WIDGET_TYPE_LIST,          DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
-//     {2, DJI_WIDGET_TYPE_SWITCH,        DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
-//     {3, DJI_WIDGET_TYPE_SCALE,         DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
-//     {4, DJI_WIDGET_TYPE_BUTTON,        DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
-//     {5, DJI_WIDGET_TYPE_SCALE,         DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
-//     {6, DJI_WIDGET_TYPE_INT_INPUT_BOX, DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
-//     {7, DJI_WIDGET_TYPE_SWITCH,        DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
-//     {8, DJI_WIDGET_TYPE_LIST,          DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
-// };
-
 static const T_DjiWidgetHandlerListItem s_widgetHandlerList[] = {
     {0, DJI_WIDGET_TYPE_LIST, DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
     {1, DJI_WIDGET_TYPE_SWITCH, DjiTestWidget_SetWidgetValue, DjiTestWidget_GetWidgetValue, NULL},
@@ -238,13 +226,28 @@ static T_DjiReturnCode DjiTestWidget_SetWidgetValue(E_DjiWidgetType widgetType, 
 
     USER_LOG_INFO("Set widget value, widgetType = %s, widgetIndex = %d ,widgetValue = %d",
                   s_widgetTypeNameArray[widgetType], index, value);
-    s_widgetValueList[index] = value;
+
 
 
     //Añadimos funcionalidad a cada uno de los widgets por el indice que tienen
     switch (index) {
         case 0: //List
             //Realizar acción según el valor seleccionado en el List
+
+            //Realizamos una comprobación de que el valor del switch es 1 (proyecto iniciado) para que se pueda seleccionar una opción
+            if (s_widgetValueList[1] == 1)
+            {
+                USER_LOG_WARN("El proyecto debe estar detenido para cambiar la selección del List");
+
+                //TODO: Intentar mostrar un mensaje en la ventana flotante
+
+                // Pequeña espera para asegurar que se envía antes de salir del callback
+                DjiPlatform_GetOsalHandler()->TaskSleepMs(20);
+
+                // IMPORTANTE: devolvemos un error, no SUCCESS
+                return DJI_ERROR_SYSTEM_MODULE_CODE_INVALID_PARAMETER;
+            }
+
             switch (value) {
                 case 0:
                     USER_LOG_INFO("Seleccionamos Proyecto LIDIA");
@@ -274,6 +277,10 @@ static T_DjiReturnCode DjiTestWidget_SetWidgetValue(E_DjiWidgetType widgetType, 
             USER_LOG_INFO("Widget index not configured for action");
             break;
     }
+
+    //Cambiamos el valor del widget en la lista
+    s_widgetValueList[index] = value;
+
     return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
 
