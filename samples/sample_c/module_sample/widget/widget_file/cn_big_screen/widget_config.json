@@ -552,59 +552,34 @@
         "widget_list": [
             {
                 "widget_index": 4,
-                "widget_type": "button",
-                "widget_name": "按钮 4",
+                "widget_type": "list",
+                "widget_name": "Proyectos",
+                "list_item": [
+                {
+                    "item_name": "Proyecto LIDIA"
+                },
+                {
+                    "item_name": "Proyecto 2"
+                },
+                {
+                    "item_name": "Proyecto 3"
+                },
+                {
+                    "item_name": "Proyecto 4"
+                }
+                ],
                 "customize_rc_buttons_config": {
-                    "is_enable": true,
-                    "mapping_config_display_order": 4
+                "is_enable": true,
+                "mapping_config_display_order": 8
                 }
             },
             {
                 "widget_index": 5,
-                "widget_type": "scale",
-                "widget_name": "范围条 5",
+                "widget_type": "button",
+                "widget_name": "RUN",
                 "customize_rc_buttons_config": {
-                    "is_enable": true,
-                    "mapping_config_display_order": 5,
-                    "button_value_step_length": 5
-                }
-            },
-            {
-                "widget_index": 6,
-                "widget_type": "int_input_box",
-                "widget_name": "整形值输入框 6",
-                "int_input_box_hint": "unit:s"
-            },
-            {
-                "widget_index": 7,
-                "widget_type": "switch",
-                "widget_name": "开关 7",
-                "customize_rc_buttons_config": {
-                    "is_enable": true,
-                    "mapping_config_display_order": 7
-                }
-            },
-            {
-                "widget_index": 8,
-                "widget_type": "list",
-                "widget_name": "列表 8",
-                "list_item": [
-                    {
-                        "item_name": "选项 1"
-                    },
-                    {
-                        "item_name": "选项 2"
-                    },
-                    {
-                        "item_name": "选项 3"
-                    },
-                    {
-                        "item_name": "选项 4"
-                    }
-                ],
-                "customize_rc_buttons_config": {
-                    "is_enable": true,
-                    "mapping_config_display_order": 8
+                "is_enable": true,
+                "mapping_config_display_order": 4
                 }
             }
         ]
