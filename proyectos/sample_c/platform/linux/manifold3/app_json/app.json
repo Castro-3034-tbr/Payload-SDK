@@ -39,6 +39,6 @@
     "ver_max": "99.99.99.99",
     "bin": "../../../../../../build/bin/dji_sdk_demo_on_manifold3",
     "userconfig": [
-        "../../../../../../samples"
+        "../../../../../../proyectos"
     ]
 }

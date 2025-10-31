@@ -177,7 +177,7 @@ static T_DjiReturnCode DjiUserConfigManager_GetAppInfoInner(const char *path, T_
         !strcmp(userInfo->developerAccount, "your_developer_account") ||
         !strcmp(userInfo->baudRate, "your_baud_rate")) {
         USER_LOG_ERROR(
-            "Please fill in correct user information to 'samples/sample_c++/platform/linux/manifold2/application/dji_sdk_config.json' file.");
+            "Please fill in correct user information to 'proyectos/sample_c++/platform/linux/manifold2/application/dji_sdk_config.json' file.");
         returnCode = DJI_ERROR_SYSTEM_MODULE_CODE_INVALID_PARAMETER;
         goto jsonDataFree;
     }

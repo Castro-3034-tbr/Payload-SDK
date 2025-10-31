@@ -28,12 +28,13 @@
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 #include "task.h"
+#include "usb_host.h"
 #include "led.h"
 #include "pps.h"
 #include "apply_high_power.h"
 #include "uart.h"
 #include "flash_if.h"
-#include "upgrade_platform_opt_gd32.h"
+#include "upgrade_platform_opt_stm32.h"
 
 #include "application.h"
 #include "hal_uart.h"
@@ -58,7 +59,6 @@
 #include "positioning/test_positioning.h"
 #include "upgrade/test_upgrade.h"
 #include "power_management/test_power_management.h"
-#include "tethered_battery/test_tethered_battery.h"
 
 /* Private constants ---------------------------------------------------------*/
 #define RUN_INDICATE_TASK_FREQ_1HZ        1
@@ -126,6 +126,15 @@ void DjiUser_StartTask(void const *argument)
         .debugVersion = USER_FIRMWARE_DEBUG_VERSION,
     };
 
+    UART_Init(DJI_CONSOLE_UART_NUM, DJI_CONSOLE_UART_BAUD);
+    Led_Init(LED3);
+
+//Attention: if you want to run payload sdk on extension port, please define the macro USE_USB_HOST_UART.
+#if USE_USB_HOST_UART
+    MX_USB_HOST_Init();
+    Osal_TaskSleepMs(2000);
+#endif
+
     returnCode = DjiPlatform_RegOsalHandler(&osalHandler);
     if (returnCode != DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS) {
         printf("register osal handler error");
@@ -138,7 +147,6 @@ void DjiUser_StartTask(void const *argument)
         goto out;
     }
 
-    USER_LOG_INFO("Register hal i2c handler.");
     returnCode = DjiPlatform_RegHalI2cHandler(&i2CHandler);
     if (returnCode != DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS) {
         printf("register hal i2c handler error");
@@ -157,7 +165,6 @@ void DjiUser_StartTask(void const *argument)
         goto out;
     }
 
-
     returnCode = DjiCore_SetFirmwareVersion(firmwareVersion);
     if (returnCode != DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS) {
         USER_LOG_ERROR("set firmware version error");
@@ -172,7 +179,6 @@ void DjiUser_StartTask(void const *argument)
 
     returnCode = DjiCore_Init(&userInfo);
     if (returnCode != DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS) {
-        osalHandler.TaskSleepMs(200);
         USER_LOG_ERROR("core init error");
         goto out;
     }
@@ -188,7 +194,6 @@ void DjiUser_StartTask(void const *argument)
         USER_LOG_ERROR("set alias error");
         goto out;
     }
-
 
 #ifdef CONFIG_MODULE_SAMPLE_POWER_MANAGEMENT_ON
     T_DjiTestApplyHighPowerHandler applyHighPowerHandler = {
@@ -261,8 +266,6 @@ void DjiUser_StartTask(void const *argument)
         USER_LOG_WARN("Not support gimbal emu sample.");
     } else {
         if (aircraftInfoBaseInfo.djiAdapterType == DJI_SDK_ADAPTER_TYPE_SKYPORT_V2 ||
-            aircraftInfoBaseInfo.djiAdapterType == DJI_SDK_ADAPTER_TYPE_EPORT_V2_RIBBON_CABLE ||
-            aircraftInfoBaseInfo.djiAdapterType == DJI_SDK_ADAPTER_TYPE_SKYPORT_V3 ||
             aircraftInfoBaseInfo.djiAdapterType == DJI_SDK_ADAPTER_TYPE_NONE) {
             if (DjiTest_GimbalStartService() != DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS) {
                 USER_LOG_ERROR("psdk gimbal init error");
@@ -305,23 +308,31 @@ void DjiUser_StartTask(void const *argument)
 #endif
 
 #ifdef CONFIG_MODULE_SAMPLE_POSITIONING_ON
+    if (((aircraftInfoBaseInfo.aircraftType == DJI_AIRCRAFT_TYPE_M300_RTK ||
+         aircraftInfoBaseInfo.aircraftType == DJI_AIRCRAFT_TYPE_M350_RTK)
+        && aircraftInfoBaseInfo.mountPosition != DJI_MOUNT_POSITION_TYPE_EXTENSION_PORT)
+        || DJI_AIRCRAFT_TYPE_M4T == aircraftInfoBaseInfo.aircraftType
+        || DJI_AIRCRAFT_TYPE_M4TD == aircraftInfoBaseInfo.aircraftType
+        || DJI_AIRCRAFT_TYPE_M4D == aircraftInfoBaseInfo.aircraftType
+    ) {
         if (DjiTest_PositioningStartService() != DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS) {
             USER_LOG_ERROR("psdk positioning init error");
         }
+    }
 #endif
 
 #ifdef CONFIG_MODULE_SAMPLE_UPGRADE_ON
-    T_DjiTestUpgradePlatformOpt Gd32UpgradePlatformOpt = {
-        .rebootSystem = DjiUpgradePlatformGd32_RebootSystem,
-        .cleanUpgradeProgramFileStoreArea = DjiUpgradePlatformGd32_CleanUpgradeProgramFileStoreArea,
-        .createUpgradeProgramFile = DjiUpgradePlatformGd32_CreateUpgradeProgramFile,
-        .writeUpgradeProgramFile = DjiUpgradePlatformGd32_WriteUpgradeProgramFile,
-        .readUpgradeProgramFile = DjiUpgradePlatformGd32_ReadUpgradeProgramFile,
-        .closeUpgradeProgramFile = DjiUpgradePlatformGd32_CloseUpgradeProgramFile,
-        .replaceOldProgram = DjiUpgradePlatformGd32_ReplaceOldProgram,
-        .setUpgradeRebootState = DjiUpgradePlatformGd32_SetUpgradeRebootState,
-        .getUpgradeRebootState = DjiUpgradePlatformGd32_GetUpgradeRebootState,
-        .cleanUpgradeRebootState = DjiUpgradePlatformGd32_CleanUpgradeRebootState,
+    T_DjiTestUpgradePlatformOpt stm32UpgradePlatformOpt = {
+        .rebootSystem = DjiUpgradePlatformStm32_RebootSystem,
+        .cleanUpgradeProgramFileStoreArea = DjiUpgradePlatformStm32_CleanUpgradeProgramFileStoreArea,
+        .createUpgradeProgramFile = DjiUpgradePlatformStm32_CreateUpgradeProgramFile,
+        .writeUpgradeProgramFile = DjiUpgradePlatformStm32_WriteUpgradeProgramFile,
+        .readUpgradeProgramFile = DjiUpgradePlatformStm32_ReadUpgradeProgramFile,
+        .closeUpgradeProgramFile = DjiUpgradePlatformStm32_CloseUpgradeProgramFile,
+        .replaceOldProgram = DjiUpgradePlatformStm32_ReplaceOldProgram,
+        .setUpgradeRebootState = DjiUpgradePlatformStm32_SetUpgradeRebootState,
+        .getUpgradeRebootState = DjiUpgradePlatformStm32_GetUpgradeRebootState,
+        .cleanUpgradeRebootState = DjiUpgradePlatformStm32_CleanUpgradeRebootState,
     };
     T_DjiTestUpgradeConfig testUpgradeConfig = {
         .firmwareVersion = {
@@ -333,17 +344,9 @@ void DjiUser_StartTask(void const *argument)
         .transferType = DJI_FIRMWARE_TRANSFER_TYPE_DCFTP,
         .needReplaceProgramBeforeReboot = false
     };
-    if (DjiTest_UpgradeStartService(&Gd32UpgradePlatformOpt, testUpgradeConfig) !=
+    if (DjiTest_UpgradeStartService(&stm32UpgradePlatformOpt, testUpgradeConfig) !=
         DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS) {
         printf("psdk upgrade init error");
-    }
-#endif
-
-#ifdef CONFIG_MODULE_SAMPLE_TETHERED_BATTERY_ON
-    if (aircraftInfoBaseInfo.djiAdapterType == DJI_SDK_ADAPTER_TYPE_EPORT_V2_RIBBON_CABLE) {
-        if (DjiTest_TetheredBatteryStartService() != DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS) {
-            USER_LOG_ERROR("psdk tethered battery sample init error");
-        }
     }
 #endif
 
@@ -354,24 +357,12 @@ void DjiUser_StartTask(void const *argument)
 
     s_isApplicationStart = true;
 
-#ifdef CONFIG_MODULE_SAMPLE_FC_SUBSCRIPTION_ON
-    returnCode = DjiTest_FcSubscriptionRunSample();
-    if (returnCode != DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS) {
-        USER_LOG_ERROR("Fc subcription run sample failed, 0x%08X", returnCode);
-    }
-#endif
-
     while (1) {
         Osal_TaskSleepMs(500);
-        Led_Trigger(LED_GREEN);
+        Led_Trigger(LED3);
     }
 
 out:
-    while (1) {
-        USER_LOG_ERROR("Eport 2.0 Development Board sample init failed.");
-        Osal_TaskSleepMs(250);
-        Led_Trigger(LED_RED);
-    }
     vTaskDelete(xTaskGetCurrentTaskHandle());
 }
 
@@ -383,87 +374,86 @@ out:
 
 void DjiUser_MonitorTask(void const *argument)
 {
-   static uint32_t runIndicateTaskStep = 0;
-   T_UartBufferState readBufferState = {0};
-   T_UartBufferState writeBufferState = {0};
-   T_DjiOsalHandler *osalHandler = DjiPlatform_GetOsalHandler();
+    static uint32_t runIndicateTaskStep = 0;
+    T_UartBufferState readBufferState = {0};
+    T_UartBufferState writeBufferState = {0};
 #if (configUSE_TRACE_FACILITY == 1)
-   int32_t i = 0;
-   int32_t j = 0;
-   TaskStatus_t *lastTaskStatusArray = NULL;
-   TaskStatus_t *currentTaskStatusArray = NULL;
-   uint8_t lastTaskStatusArraySize = 0;
-   uint8_t currentTaskStatusArraySize;
-   uint8_t cpuOccupyPercentage;
+    int32_t i = 0;
+    int32_t j = 0;
+    TaskStatus_t *lastTaskStatusArray = NULL;
+    TaskStatus_t *currentTaskStatusArray = NULL;
+    uint8_t lastTaskStatusArraySize = 0;
+    uint8_t currentTaskStatusArraySize;
+    uint8_t cpuOccupyPercentage;
 #endif
 
-   while (1) {
-       Osal_TaskSleepMs(1000 / RUN_INDICATE_TASK_FREQ_0D1HZ);
+    while (1) {
+        Osal_TaskSleepMs(1000 / RUN_INDICATE_TASK_FREQ_0D1HZ);
 
-       if (s_isApplicationStart == false) {
-           continue;
-       }
-       // report UART buffer state
+        if (s_isApplicationStart == false) {
+            continue;
+        }
+        // report UART buffer state
 #ifdef USING_UART_PORT_1
-       UART_GetBufferState(UART_NUM_1, &readBufferState, &writeBufferState);
-       USER_LOG_DEBUG("Uart1 read buffer state: countOfLostData %d, maxUsedCapacityOfBuffer %d.",
-                      readBufferState.countOfLostData, readBufferState.maxUsedCapacityOfBuffer);
-       USER_LOG_DEBUG("Uart1 write buffer state: countOfLostData %d, maxUsedCapacityOfBuffer %d.",
-                      writeBufferState.countOfLostData, writeBufferState.maxUsedCapacityOfBuffer);
+        UART_GetBufferState(UART_NUM_1, &readBufferState, &writeBufferState);
+        USER_LOG_DEBUG("Uart1 read buffer state: countOfLostData %d, maxUsedCapacityOfBuffer %d.",
+                       readBufferState.countOfLostData, readBufferState.maxUsedCapacityOfBuffer);
+        USER_LOG_DEBUG("Uart1 write buffer state: countOfLostData %d, maxUsedCapacityOfBuffer %d.",
+                       writeBufferState.countOfLostData, writeBufferState.maxUsedCapacityOfBuffer);
 #endif
 
 #ifdef USING_UART_PORT_2
-       UART_GetBufferState(UART_NUM_2, &readBufferState, &writeBufferState);
-       USER_LOG_DEBUG("Uart2 read buffer state: countOfLostData %d, maxUsedCapacityOfBuffer %d.",
-                      readBufferState.countOfLostData, readBufferState.maxUsedCapacityOfBuffer);
-       USER_LOG_DEBUG("Uart2 write buffer state: countOfLostData %d, maxUsedCapacityOfBuffer %d.",
-                      writeBufferState.countOfLostData, writeBufferState.maxUsedCapacityOfBuffer);
+        UART_GetBufferState(UART_NUM_2, &readBufferState, &writeBufferState);
+        USER_LOG_DEBUG("Uart2 read buffer state: countOfLostData %d, maxUsedCapacityOfBuffer %d.",
+                       readBufferState.countOfLostData, readBufferState.maxUsedCapacityOfBuffer);
+        USER_LOG_DEBUG("Uart2 write buffer state: countOfLostData %d, maxUsedCapacityOfBuffer %d.",
+                       writeBufferState.countOfLostData, writeBufferState.maxUsedCapacityOfBuffer);
 #endif
 
 #ifdef USING_UART_PORT_3
-       UART_GetBufferState(UART_NUM_3, &readBufferState, &writeBufferState);
-       USER_LOG_DEBUG("Uart3 read buffer state: countOfLostData %d, maxUsedCapacityOfBuffer %d.",
-                      readBufferState.countOfLostData, readBufferState.maxUsedCapacityOfBuffer);
-       USER_LOG_DEBUG("Uart3 write buffer state: countOfLostData %d, maxUsedCapacityOfBuffer %d.",
-                      writeBufferState.countOfLostData, writeBufferState.maxUsedCapacityOfBuffer);
+        UART_GetBufferState(UART_NUM_3, &readBufferState, &writeBufferState);
+        USER_LOG_DEBUG("Uart3 read buffer state: countOfLostData %d, maxUsedCapacityOfBuffer %d.",
+                       readBufferState.countOfLostData, readBufferState.maxUsedCapacityOfBuffer);
+        USER_LOG_DEBUG("Uart3 write buffer state: countOfLostData %d, maxUsedCapacityOfBuffer %d.",
+                       writeBufferState.countOfLostData, writeBufferState.maxUsedCapacityOfBuffer);
 #endif
 
-       // report system performance information.
-       // Attention: report system performance part is not intended for normal application runtime use but as a debug aid.
-       if (USER_UTIL_IS_WORK_TURN(runIndicateTaskStep++, RUN_INDICATE_TASK_FREQ_0D1HZ,
-                                  RUN_INDICATE_TASK_FREQ_1HZ)) {
+        // report system performance information.
+        // Attention: report system performance part is not intended for normal application runtime use but as a debug aid.
+        if (USER_UTIL_IS_WORK_TURN(runIndicateTaskStep++, RUN_INDICATE_TASK_FREQ_0D1HZ,
+                                   RUN_INDICATE_TASK_FREQ_1HZ)) {
 #if (configUSE_TRACE_FACILITY == 1)
-           currentTaskStatusArraySize = uxTaskGetNumberOfTasks();
-           currentTaskStatusArray = osalHandler->Malloc(currentTaskStatusArraySize * sizeof(TaskStatus_t));
-           if (currentTaskStatusArray == NULL) {
-               continue;
-           }
+            currentTaskStatusArraySize = uxTaskGetNumberOfTasks();
+            currentTaskStatusArray = osalHandler->Malloc(currentTaskStatusArraySize * sizeof(TaskStatus_t));
+            if (currentTaskStatusArray == NULL) {
+                continue;
+            }
 
-           currentTaskStatusArraySize = uxTaskGetSystemState(currentTaskStatusArray, currentTaskStatusArraySize, NULL);
-           USER_LOG_DEBUG("task information:");
-           USER_LOG_DEBUG("task name\trun time (%%)\tstack left (byte)\tnumber");
-           for (i = 0; i < currentTaskStatusArraySize; i++) {
-               cpuOccupyPercentage = 0;
-               for (j = 0; j < lastTaskStatusArraySize; ++j) {
-                   if (currentTaskStatusArray[i].xTaskNumber == lastTaskStatusArray[j].xTaskNumber) {
-                       cpuOccupyPercentage =
-                           (currentTaskStatusArray[i].ulRunTimeCounter - lastTaskStatusArray[j].ulRunTimeCounter) /
-                           configTICK_RATE_HZ / RUN_INDICATE_TASK_FREQ_0D1HZ;
-                       break;
-                   }
-               }
-               USER_LOG_DEBUG("%-16s\t%u\t%u\t%u", currentTaskStatusArray[i].pcTaskName, cpuOccupyPercentage,
-                              (unsigned int) currentTaskStatusArray[i].usStackHighWaterMark * sizeof(StackType_t),
-                              (unsigned int) currentTaskStatusArray[i].xTaskNumber);
-           }
-           osalHandler->Free(lastTaskStatusArray);
-           lastTaskStatusArray = currentTaskStatusArray;
-           lastTaskStatusArraySize = currentTaskStatusArraySize;
+            currentTaskStatusArraySize = uxTaskGetSystemState(currentTaskStatusArray, currentTaskStatusArraySize, NULL);
+            USER_LOG_DEBUG("task information:");
+            USER_LOG_DEBUG("task name\trun time (%%)\tstack left (byte)\tnumber");
+            for (i = 0; i < currentTaskStatusArraySize; i++) {
+                cpuOccupyPercentage = 0;
+                for (j = 0; j < lastTaskStatusArraySize; ++j) {
+                    if (currentTaskStatusArray[i].xTaskNumber == lastTaskStatusArray[j].xTaskNumber) {
+                        cpuOccupyPercentage =
+                            (currentTaskStatusArray[i].ulRunTimeCounter - lastTaskStatusArray[j].ulRunTimeCounter) /
+                            configTICK_RATE_HZ / RUN_INDICATE_TASK_FREQ_0D1HZ;
+                        break;
+                    }
+                }
+                USER_LOG_DEBUG("%-16s\t%u\t%u\t%u", currentTaskStatusArray[i].pcTaskName, cpuOccupyPercentage,
+                               (unsigned int) currentTaskStatusArray[i].usStackHighWaterMark * sizeof(StackType_t),
+                               (unsigned int) currentTaskStatusArray[i].xTaskNumber);
+            }
+            osalHandler->Free(lastTaskStatusArray);
+            lastTaskStatusArray = currentTaskStatusArray;
+            lastTaskStatusArraySize = currentTaskStatusArraySize;
 #endif
-       }
-       USER_LOG_INFO("Used heap size: %d/%d.\r\n", configTOTAL_HEAP_SIZE - xPortGetFreeHeapSize(),
-                     configTOTAL_HEAP_SIZE);
-   }
+        }
+        USER_LOG_INFO("Used heap size: %d/%d.\r\n", configTOTAL_HEAP_SIZE - xPortGetFreeHeapSize(),
+                      configTOTAL_HEAP_SIZE);
+    }
 }
 
 #ifndef __CC_ARM
@@ -497,7 +487,7 @@ static T_DjiReturnCode DjiUser_FillInUserInfo(T_DjiUserInfo *userInfo)
         !strcmp(USER_DEVELOPER_ACCOUNT, "your_developer_account") ||
         !strcmp(USER_BAUD_RATE, "your_baud_rate")) {
         USER_LOG_ERROR(
-            "Please fill in correct user information to 'samples/sample_c/platform/rtos_freertos/Gd32f4_discovery/application/dji_sdk_app_info.h' file.");
+            "Please fill in correct user information to 'proyectos/sample_c/platform/rtos_freertos/stm32f4_discovery/application/dji_sdk_app_info.h' file.");
         return DJI_ERROR_SYSTEM_MODULE_CODE_INVALID_PARAMETER;
     }
 

@@ -273,7 +273,7 @@ typedef struct
 {
     uint32_t tamper_source;                                                     /*!< RTC tamper source */
     uint32_t tamper_trigger;                                                    /*!< RTC tamper trigger */
-    uint32_t tamper_filter;                                                     /*!< RTC tamper consecutive samples needed during a voltage level detection */
+    uint32_t tamper_filter;                                                     /*!< RTC tamper consecutive proyectos needed during a voltage level detection */
     uint32_t tamper_sample_frequency;                                           /*!< RTC tamper sampling frequency during a voltage level detection */
     ControlStatus tamper_precharge_enable;                                      /*!< RTC tamper precharge feature during a voltage level detection */
     uint32_t tamper_precharge_time;                                             /*!< RTC tamper precharge duration if precharge feature is enabled */
@@ -435,9 +435,9 @@ typedef struct
 
 #define TAMP_FLT(regval)                   (BITS(11,12) & ((uint32_t)(regval) << 11)) /*!< write value to RTC_TAMP_FLT bit field */
 #define RTC_FLT_EDGE                       TAMP_FLT(0)                                /*!< detecting tamper event using edge mode. precharge duration is disabled automatically */
-#define RTC_FLT_2S                         TAMP_FLT(1)                                /*!< detecting tamper event using level mode.2 consecutive valid level samples will make a effective tamper event  */
-#define RTC_FLT_4S                         TAMP_FLT(2)                                /*!< detecting tamper event using level mode.4 consecutive valid level samples will make an effective tamper event */
-#define RTC_FLT_8S                         TAMP_FLT(3)                                /*!< detecting tamper event using level mode.8 consecutive valid level samples will make a effective tamper event  */
+#define RTC_FLT_2S                         TAMP_FLT(1)                                /*!< detecting tamper event using level mode.2 consecutive valid level proyectos will make a effective tamper event  */
+#define RTC_FLT_4S                         TAMP_FLT(2)                                /*!< detecting tamper event using level mode.4 consecutive valid level proyectos will make an effective tamper event */
+#define RTC_FLT_8S                         TAMP_FLT(3)                                /*!< detecting tamper event using level mode.8 consecutive valid level proyectos will make a effective tamper event  */
 
 #define TAMP_PRCH(regval)                  (BITS(13,14) & ((uint32_t)(regval) << 13)) /*!< write value to RTC_TAMP_PRCH bit field */
 #define RTC_PRCH_1C                        TAMP_PRCH(0)                               /*!< 1 RTC clock prechagre time before each sampling */
