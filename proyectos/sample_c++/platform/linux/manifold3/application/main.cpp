@@ -57,7 +57,7 @@ int main(int argc, char **argv)
     E_DjiMountPosition mountPosition = DJI_MOUNT_POSITION_PAYLOAD_PORT_NO1;
 
     //FIXME: Trampa para no tener que actibar el widget cada vez que se inicia el programa desde la emisora
-    // ValueSWITCH = 1; //Activamos el proyecto
+    ValueSWITCH = 1; //Activamos el proyecto
 
 start:
 
