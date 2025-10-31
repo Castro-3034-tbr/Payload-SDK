@@ -222,7 +222,7 @@ static void *DjiTest_WidgetTask(void *arg)
 
 //Definimos las variables globales para los valores de los widgets
 int ValueSWITCH = 0;
-const char* ValueLIST = "Proyecto LIDIA";
+int ValueLIST = 0;
 
 static T_DjiReturnCode DjiTestWidget_SetWidgetValue(E_DjiWidgetType widgetType, uint32_t index, int32_t value,
                                                     void *userData)
@@ -252,33 +252,8 @@ static T_DjiReturnCode DjiTestWidget_SetWidgetValue(E_DjiWidgetType widgetType, 
                 // IMPORTANTE: devolvemos un error, no SUCCESS
                 return DJI_ERROR_SYSTEM_MODULE_CODE_INVALID_PARAMETER;
             }
-
-            switch (value) {
-                case 0:
-                    USER_LOG_INFO("Seleccionamos Proyecto LIDIA");
-
-                    //Modificamos la variable global del proyecto seleccionado
-                    ValueLIST = "Proyecto LIDIA";
-                    break;
-                case 1:
-                    USER_LOG_INFO("Seleccionamos Proyecto 2");
-                    //Modificamos la variable global del proyecto seleccionado
-                    ValueLIST = "Proyecto 2";
-                    break;
-                case 2:
-                    USER_LOG_INFO("Seleccionamos Proyecto 3");
-                    //Modificamos la variable global del proyecto seleccionado
-                    ValueLIST = "Proyecto 3";
-                    break;
-                case 3:
-                    USER_LOG_INFO("Seleccionamos Proyecto 4");
-                    //Modificamos la variable global del proyecto seleccionado
-                    ValueLIST = "Proyecto 4";
-                    break;
-                default:
-                    USER_LOG_INFO("List widget selected unknown option");
-                    break;
-            }
+            //Si el switch es 0 (proyecto detenido), actualizamos el valor del List
+            ValueLIST = value;
             break;
         case 1: //Switch
             ValueSWITCH = value; //Actualizamos la variable global del switch

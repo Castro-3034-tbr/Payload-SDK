@@ -44,6 +44,8 @@
 #include <liveview/dji_liveview_object_detection.hpp>
 #include "liveview/test_liveview.h"
 #include <signal.h>
+
+#include "drone_controller/drone_controller.cpp" // Incluimos el archivo drone_controller.cpp
 /* Private constants ---------------------------------------------------------*/
 
 /* Private types -------------------------------------------------------------*/
@@ -66,31 +68,35 @@ int main(int argc, char **argv)
     T_DjiReturnCode returnCode;
     E_DjiMountPosition mountPosition = DJI_MOUNT_POSITION_PAYLOAD_PORT_NO1;
 
+
 start:
 
     //Bucle que obtiene el valor de un widget
     while (true){
         //Comprobamos que el valor del widget SWITCH es 1 o 0
         if (ValueSWITCH == 1){
-            std::cout << "El proyecto está " << ActiveProject << " ACTIVO" << std::endl;
-            std::cout << "Proyecto seleccionado: " << ValueLIST << std::endl;
-
+            std::cout << "El proyecto es " << ValueLIST << std::endl;
+            std::cout << "ActiveProject vale " << ActiveProject << std::endl;
             if (ActiveProject != 1){
                 //Iniciamos las funcionalidades del proyecto seleccionado
-                if (ValueLIST == "Proyecto LIDIA"){
-                    USER_LOG_INFO("Iniciando Proyecto LIDIA...");
-                    //Llamamos a la función run de la clase DroneControl
 
-                }
-                else if (ValueLIST == "Proyecto 2"){
-                    USER_LOG_INFO("Iniciando Proyecto 2...");
-
-                }
-                else if (ValueLIST == "Proyecto 3"){
-                    USER_LOG_INFO("Iniciando Proyecto 3...");
-                }
-                else if (ValueLIST == "Proyecto 4"){
-                    USER_LOG_INFO("Iniciando Proyecto 4...");
+                switch (ValueLIST)
+                {
+                case 0:
+                    USER_LOG_INFO("Iniciando proyecto LIDIA...");
+                    runLidiaProject();
+                    break;
+                case 1:
+                    //Añadir funcionalidad del proyecto 2
+                    USER_LOG_INFO("Iniciando proyecto 2...");
+                    break;
+                case 2:
+                    //Añadir funcionalidad del proyecto 3
+                    USER_LOG_INFO("Iniciando proyecto 3...");
+                    break;
+                default:
+                    USER_LOG_WARN("Proyecto no reconocido");
+                    break;
                 }
             }
             ActiveProject = 1;
