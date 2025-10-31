@@ -1,0 +1,6 @@
+#Ignoraacion de carpetas y archivos que no necesitan seguimiento de versionado
+eliminados/
+eliminados_plataformas
+.vscode/
+.trunk/
+temp/

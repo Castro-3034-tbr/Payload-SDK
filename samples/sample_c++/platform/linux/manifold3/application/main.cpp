@@ -23,26 +23,13 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
-#include <liveview/test_liveview_entry.hpp>
-#include <perception/test_perception_entry.hpp>
-#include <perception/test_lidar_entry.hpp>
-#include <perception/test_radar_entry.hpp>
-#include <flight_control/test_flight_control.h>
-#include <gimbal/test_gimbal_entry.hpp>
+
+
 #include "application.hpp"
 #include <dji_logger.h>
 #include "widget/test_widget.h"
 #include "widget/test_widget_speaker.h"
 #include <widget_manager/test_widget_manager.hpp>
-#include <power_management/test_power_management.h>
-#include "data_transmission/test_data_transmission.h"
-#include <flight_controller/test_flight_controller_entry.h>
-#include <positioning/test_positioning.h>
-#include <hms_manager/hms_manager_entry.h>
-#include "camera_manager/test_camera_manager_entry.h"
-#include <hms_manager/hms_manager_entry.h>
-#include <liveview/dji_liveview_object_detection.hpp>
-#include "liveview/test_liveview.h"
 #include <signal.h>
 
 // #include "drone_controller/drone_controller.hpp"
