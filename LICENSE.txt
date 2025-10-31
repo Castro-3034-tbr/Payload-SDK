@@ -92,7 +92,7 @@ The following portions of the DJI’s Payload SDK (“Software” referred to in
 │       └── x86_64-linux-gnu-gcc
 │           └── libpayloadsdk.a
 ├── README.md
-├── samples
+├── proyectos
 │   ├── sample_c
 │   │   ├── module_sample
 │   │   │   ├── camera_emu
