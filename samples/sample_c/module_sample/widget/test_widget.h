@@ -47,5 +47,10 @@ __attribute__((weak)) void DjiTest_WidgetLogAppend(const char *fmt, ...);
 }
 #endif
 
+//Creamos variables externas para los valores de los widgets
+extern int ValueSWITCH;
+extern const char* ValueLIST;
+
+
 #endif // TEST_WIDGET_H
 /************************ (C) COPYRIGHT DJI Innovations *******END OF FILE******/

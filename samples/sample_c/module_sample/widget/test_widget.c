@@ -219,6 +219,11 @@ static void *DjiTest_WidgetTask(void *arg)
 #pragma GCC diagnostic pop
 #endif
 
+
+//Definimos las variables globales para los valores de los widgets
+int ValueSWITCH = 0;
+const char* ValueLIST = "Proyecto LIDIA";
+
 static T_DjiReturnCode DjiTestWidget_SetWidgetValue(E_DjiWidgetType widgetType, uint32_t index, int32_t value,
                                                     void *userData)
 {
@@ -251,15 +256,24 @@ static T_DjiReturnCode DjiTestWidget_SetWidgetValue(E_DjiWidgetType widgetType, 
             switch (value) {
                 case 0:
                     USER_LOG_INFO("Seleccionamos Proyecto LIDIA");
+
+                    //Modificamos la variable global del proyecto seleccionado
+                    ValueLIST = "Proyecto LIDIA";
                     break;
                 case 1:
                     USER_LOG_INFO("Seleccionamos Proyecto 2");
+                    //Modificamos la variable global del proyecto seleccionado
+                    ValueLIST = "Proyecto 2";
                     break;
                 case 2:
                     USER_LOG_INFO("Seleccionamos Proyecto 3");
+                    //Modificamos la variable global del proyecto seleccionado
+                    ValueLIST = "Proyecto 3";
                     break;
                 case 3:
                     USER_LOG_INFO("Seleccionamos Proyecto 4");
+                    //Modificamos la variable global del proyecto seleccionado
+                    ValueLIST = "Proyecto 4";
                     break;
                 default:
                     USER_LOG_INFO("List widget selected unknown option");
@@ -267,11 +281,7 @@ static T_DjiReturnCode DjiTestWidget_SetWidgetValue(E_DjiWidgetType widgetType, 
             }
             break;
         case 1: //Switch
-            if (value == 1) {
-                USER_LOG_INFO("Iniciamos el Proyecto");
-            } else {
-                USER_LOG_INFO("Detenemos el Proyecto");
-            }
+            ValueSWITCH = value; //Actualizamos la variable global del switch
             break;
         default:
             USER_LOG_INFO("Widget index not configured for action");
