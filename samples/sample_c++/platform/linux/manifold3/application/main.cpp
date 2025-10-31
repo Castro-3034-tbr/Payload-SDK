@@ -45,7 +45,8 @@
 #include "liveview/test_liveview.h"
 #include <signal.h>
 
-#include "drone_controller/drone_controller.cpp" // Incluimos el archivo drone_controller.cpp
+// #include "drone_controller/drone_controller.hpp"
+// #include "proyecto_lidia/main_lidia.cpp"
 /* Private constants ---------------------------------------------------------*/
 
 /* Private types -------------------------------------------------------------*/
@@ -68,6 +69,8 @@ int main(int argc, char **argv)
     T_DjiReturnCode returnCode;
     E_DjiMountPosition mountPosition = DJI_MOUNT_POSITION_PAYLOAD_PORT_NO1;
 
+    //FIXME: Trampa para no tener que actibar el widget cada vez que se inicia el programa desde la emisora
+    // ValueSWITCH = 1; //Activamos el proyecto
 
 start:
 
@@ -84,7 +87,10 @@ start:
                 {
                 case 0:
                     USER_LOG_INFO("Iniciando proyecto LIDIA...");
-                    runLidiaProject();
+
+                    //Iniciamos el proyecto LIDIA
+                    // init_lidia_project();
+
                     break;
                 case 1:
                     //Añadir funcionalidad del proyecto 2
@@ -107,6 +113,26 @@ start:
             //Mensaje de parada de proyecto
             if (ActiveProject != 0){
                 USER_LOG_INFO("Deteniendo el proyecto %s...", ValueLIST);
+                //Detenemos las funcionalidades del proyecto seleccionado
+                switch (ValueLIST)
+                {
+                case 0:
+                    //Detenemos el proyecto LIDIA
+                    // deinit_lidia_project();
+                    USER_LOG_INFO("Proyecto LIDIA detenido.");
+                    break;
+                case 1:
+                    //Añadir funcionalidad del proyecto 2
+                    USER_LOG_INFO("Proyecto 2 detenido.");
+                    break;
+                case 2:
+                    //Añadir funcionalidad del proyecto 3
+                    USER_LOG_INFO("Proyecto 3 detenido.");
+                    break;
+                default:
+                    USER_LOG_WARN("Proyecto no reconocido");
+                    break;
+                }
             }
             ActiveProject = 0;
         }
